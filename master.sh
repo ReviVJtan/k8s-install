@@ -1,13 +1,17 @@
 #!/bin/bash
+echo -e "\033[44;37;5m DOCKER INSTALL \033[0m"
 curl -sSL https://get.daocloud.io/docker | sh
+echo -e "\033[44;37;5m UTIL INSTALL \033[0m"
 apt-get install -y htop git bridge-utils wget supervisor
+echo -e "\033[44;37;5m Package Download \033[0m"
 wget http://git.oschina.net/lijianying10/k8s-install/raw/master/pac.tar
+echo -e "\033[44;37;5m Package install and clean\033[0m"
 tar xf pac.tar
 cp pac/* /bin/
 rm -rf pac*
 
-export FLANNEL_IFACE=eth0
-export FLANNEL_IPMASQ=true
+
+echo -e "\033[44;37;5m AUTO config supervisord \033[0m"
 cat >> /etc/supervisor/supervisord.conf << EOF
 [program:etcd]
 command=etcd  --listen-client-urls=http://0.0.0.0:4001 --advertise-client-urls=http://0.0.0.0:4001 --data-dir=/var/etcd/data             
@@ -26,17 +30,23 @@ autostart=true
 autorestart=true
 EOF
 
+echo -e "\033[44;37;5m Start ETCD flannel\033[0m"
 supervisorctl reload
 
+echo -e "\033[44;37;5m REG Network\033[0m"
 etcdctl set /coreos.com/network/config '{ "Network": "10.1.0.0/16" }'
+
+echo -e "\033[44;37;5m AUTO Config docker\033[0m"
 cat /run/flannel/subnet.env >> /etc/default/docker
 
 echo DOCKER_OPTS=\"--bip=\${FLANNEL_SUBNET} --mtu=\${FLANNEL_MTU}\" >> /etc/default/docker
 
+echo -e "\033[44;37;5m Delete Docker0\033[0m"
 ifconfig docker0 down
 sudo brctl delbr docker0
 service docker restart
 
+echo -e "\033[44;37;5m Install K8S\033[0m"
 docker pull index.alauda.cn/googlecontainer/hyperkube-amd64:v1.2.4
 docker pull index.alauda.cn/googlecontainer/pause:2.0
 docker tag index.alauda.cn/googlecontainer/hyperkube-amd64:v1.2.4 gcr.io/google_containers/hyperkube-amd64:v1.2.4
@@ -44,6 +54,7 @@ docker tag index.alauda.cn/googlecontainer/pause:2.0 gcr.io/google_containers/pa
 docker rmi index.alauda.cn/googlecontainer/hyperkube-amd64:v1.2.4
 docker rmi index.alauda.cn/googlecontainer/pause:2.0
 
+echo -e "\033[44;37;5m RUN k8s\033[0m"
 sudo docker run \
     --volume=/:/rootfs:ro \
     --volume=/sys:/sys:ro \
