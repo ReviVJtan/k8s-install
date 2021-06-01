@@ -1,6 +1,8 @@
 #!/bin/bash
 echo -e "\033[44;37;5m DOCKER INSTALL \033[0m"
-curl -sSL https://get.daocloud.io/docker | sh
+curl -sSL https://get.daocloud.io/docker -o dockerinstall.sh
+sh dockerinstall.sh
+rm dockerinstall.sh
 echo -e "\033[44;37;5m UTIL INSTALL \033[0m"
 apt-get install -y htop git bridge-utils wget supervisor
 echo -e "\033[44;37;5m Package Download \033[0m"
