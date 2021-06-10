@@ -40,12 +40,6 @@ sleep 3
 echo -e "\033[44;37;5m REG Network\033[0m"
 etcdctl set /coreos.com/network/config '{ "Network": "10.1.0.0/16" }'
 
-echo -e "\033[44;37;5m Start flannel \033[0m"
-supervisorctl start flannel
-
-echo -e "\033[44;37;5m Waiting for flannel start \033[0m"
-sleep 3
-
 echo -e "\033[44;37;5m AUTO Config docker\033[0m"
 cat /run/flannel/subnet.env >> /etc/default/docker
 
