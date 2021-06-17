@@ -35,10 +35,14 @@ echo -e "\033[44;37;5m Start ETCD flannel\033[0m"
 supervisorctl reload
 
 echo -e "\033[44;37;5m Waiting for etcd start \033[0m"
-sleep 3
+sleep 2
 
 echo -e "\033[44;37;5m REG Network\033[0m"
 etcdctl set /coreos.com/network/config '{ "Network": "10.1.0.0/16" }'
+
+echo -e "\033[44;37;5m restart flannel \033[0m"
+supervisorctl restart flannel
+
 
 echo -e "\033[44;37;5m AUTO Config docker\033[0m"
 cat /run/flannel/subnet.env >> /etc/default/docker
